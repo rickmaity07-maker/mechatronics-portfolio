@@ -18,6 +18,14 @@ export default function App() {
               <Link to="/experience" className="hover:text-white transition-colors">Experience</Link>
               <Link to="/projects" className="hover:text-white transition-colors">Projects</Link>
               <Link to="/skills" className="hover:text-white transition-colors">Skills</Link>
+              
+              {/* <-- THE SECRET ADMIN LINK --> */}
+              <Link 
+                to="/admin" 
+                className="text-zinc-950 hover:text-zinc-500 transition-colors cursor-default select-none"
+              >
+                .
+              </Link>
             </div>
           </div>
         </nav>
