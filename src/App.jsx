@@ -4,6 +4,7 @@ import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Experience from './pages/Experience';
 import Skills from './pages/Skills';
+import Admin from './pages/Admin'; // <-- IMPORT THE ADMIN PORTAL
 
 export default function App() {
   return (
@@ -27,6 +28,10 @@ export default function App() {
             <Route path="/skills" element={<Skills />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />} />
+            
+            {/* <-- ADD THE ADMIN ROUTE HERE --> */}
+            <Route path="/admin" element={<Admin />} />
+            
           </Routes>
         </main>
       </div>

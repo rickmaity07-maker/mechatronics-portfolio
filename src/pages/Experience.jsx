@@ -13,12 +13,12 @@ export default function Experience() {
       ]
     },
     {
-      company: 'UST Global',
+      company: 'Intel',
       role: 'R&D Engineer (Intern)',
       period: '2021',
       achievements: [
         'Worked on OneBox Mechanical Mechatronics product assembly.',
-        'Supported machine deployment at client sites (Intel) and handled post-deployment issue resolution.'
+        'Supported machine deployment at client sites and handled post-deployment issue resolution.'
       ]
     }
   ];
