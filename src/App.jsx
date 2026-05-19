@@ -5,13 +5,11 @@ import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Experience from './pages/Experience';
 import Skills from './pages/Skills';
+import Education from './pages/Education'; // <-- 1. IMPORT ADDED
 import Admin from './pages/Admin';
 
 export default function App() {
-  // 1. SECURITY STATE (For the Admin Portal)
   const [isOwner, setIsOwner] = useState(false);
-  
-  // 2. UI STATE (For the Mobile Menu toggle)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -29,10 +27,14 @@ export default function App() {
             
             <Link to="/" className="text-xl font-bold tracking-widest text-zinc-100 z-50">RM.</Link>
             
-            {/* --- DESKTOP MENU (Hidden on phones) --- */}
+            {/* --- DESKTOP MENU --- */}
             <div className="space-x-8 text-sm uppercase tracking-wider hidden md:flex items-center">
               <Link to="/" className="hover:text-white transition-colors">Profile</Link>
               <Link to="/experience" className="hover:text-white transition-colors">Experience</Link>
+              
+              {/* <-- 2. DESKTOP EDUCATION LINK ADDED --> */}
+              <Link to="/education" className="hover:text-white transition-colors">Education</Link>
+              
               <Link to="/projects" className="hover:text-white transition-colors">Projects</Link>
               <Link to="/skills" className="hover:text-white transition-colors">Skills</Link>
               {isOwner && (
@@ -42,17 +44,15 @@ export default function App() {
               )}
             </div>
 
-            {/* --- MOBILE HAMBURGER BUTTON (Hidden on desktops) --- */}
+            {/* --- MOBILE HAMBURGER BUTTON --- */}
             <button 
               className="md:hidden text-zinc-400 hover:text-white z-50"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 {isMobileMenuOpen ? (
-                  /* 'X' Close Icon */
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 ) : (
-                  /* 'Hamburger' Menu Icon */
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 )}
               </svg>
@@ -60,11 +60,14 @@ export default function App() {
           </div>
 
           {/* --- MOBILE DROPDOWN MENU --- */}
-          {/* This only renders if isMobileMenuOpen is true AND we are on a small screen */}
           {isMobileMenuOpen && (
             <div className="md:hidden bg-zinc-950 border-b border-zinc-800/50 px-6 py-6 flex flex-col space-y-6 text-sm uppercase tracking-wider animate-fade-in-up">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Profile</Link>
               <Link to="/experience" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Experience</Link>
+              
+              {/* <-- 3. MOBILE EDUCATION LINK ADDED --> */}
+              <Link to="/education" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Education</Link>
+              
               <Link to="/projects" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Projects</Link>
               <Link to="/skills" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Skills</Link>
               {isOwner && (
@@ -80,6 +83,10 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/experience" element={<Experience />} />
+            
+            {/* <-- 4. EDUCATION ROUTE ADDED --> */}
+            <Route path="/education" element={<Education />} />
+            
             <Route path="/skills" element={<Skills />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />} />
