@@ -1,12 +1,24 @@
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Experience from './pages/Experience';
 import Skills from './pages/Skills';
-import Admin from './pages/Admin'; // <-- IMPORT THE ADMIN PORTAL
+import Admin from './pages/Admin';
 
 export default function App() {
+  // 1. Create a state to hold your VIP status
+  const [isOwner, setIsOwner] = useState(false);
+
+  // 2. Check the browser's memory the second the website loads
+  useEffect(() => {
+    const vipPass = localStorage.getItem('rm_owner');
+    if (vipPass === 'true') {
+      setIsOwner(true);
+    }
+  }, []);
+
   return (
     <Router>
       <div className="min-h-screen bg-zinc-950 text-zinc-400 font-sans">
@@ -19,13 +31,13 @@ export default function App() {
               <Link to="/projects" className="hover:text-white transition-colors">Projects</Link>
               <Link to="/skills" className="hover:text-white transition-colors">Skills</Link>
               
-              {/* <-- THE SECRET ADMIN LINK --> */}
-              <Link 
-                to="/admin" 
-                className="text-zinc-950 hover:text-zinc-500 transition-colors cursor-default select-none"
-              >
-                .
-              </Link>
+              {/* 3. CONDITIONAL RENDERING: Only show if isOwner is true! */}
+              {isOwner && (
+                <Link to="/admin" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors border-l border-zinc-800 pl-8">
+                  ADMIN PORTAL
+                </Link>
+              )}
+              
             </div>
           </div>
         </nav>
@@ -36,10 +48,7 @@ export default function App() {
             <Route path="/skills" element={<Skills />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />} />
-            
-            {/* <-- ADD THE ADMIN ROUTE HERE --> */}
             <Route path="/admin" element={<Admin />} />
-            
           </Routes>
         </main>
       </div>
