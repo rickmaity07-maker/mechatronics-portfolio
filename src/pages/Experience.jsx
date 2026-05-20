@@ -1,60 +1,63 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../supabaseClient';
 
 export default function Experience() {
-  const experiences = [
-    {
-      company: 'Hash Studio',
-      role: 'R&D Engineer',
-      period: '2021 - 2022',
-      achievements: [
-        'Built a predictive maintenance system using IoT and ML, decreasing downtime by 15%.',
-        'Designed and deployed robotic automation on production lines, improving efficiency by 30%.',
-        'Developed an automated quality control system, reducing product defects by 20%.'
-      ]
-    },
-    {
-      company: 'Intel',
-      role: 'R&D Engineer (Intern)',
-      period: '2021',
-      achievements: [
-        'Worked on OneBox Mechanical Mechatronics product assembly.',
-        'Supported machine deployment at client sites and handled post-deployment issue resolution.'
-      ]
-    }
-  ];
+  const [experienceData, setExperienceData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchExperience = async () => {
+      const { data, error } = await supabase
+        .from('Experience')
+        .select('*')
+        .order('id', { ascending: false }); // Newest entries at the top
+
+      if (!error && data) {
+        setExperienceData(data);
+      }
+      setIsLoading(false);
+    };
+
+    fetchExperience();
+  }, []);
 
   return (
-    <div className="animate-fade-in-up max-w-4xl mx-auto">
-      <div className="mb-12">
-        <h1 className="text-4xl font-light text-white tracking-tight mb-4">Work Experience</h1>
+    <div className="animate-fade-in-up space-y-12 max-w-4xl">
+      <div>
+        <h1 className="text-4xl font-light text-white tracking-tight mb-4">Experience</h1>
         <div className="h-px w-24 bg-zinc-800"></div>
       </div>
 
-      <div className="space-y-12 border-l border-zinc-800/50 pl-8 ml-4">
-        {experiences.map((exp, index) => (
-          <div key={index} className="relative">
-            {/* Timeline Node */}
-            <div className="absolute -left-[37px] top-2 w-2 h-2 bg-zinc-500 rounded-full ring-4 ring-zinc-950"></div>
-            
-            <div className="flex flex-col md:flex-row md:items-baseline justify-between mb-4">
-              <div>
-                <h3 className="text-2xl text-white font-light">{exp.role}</h3>
-                <h4 className="text-zinc-400 tracking-wider text-sm uppercase mt-1">{exp.company}</h4>
+      {isLoading ? (
+        <div className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse pt-4">
+          Loading Database...
+        </div>
+      ) : (
+        <div className="space-y-12 pt-4">
+          {experienceData.map((item) => (
+            <div key={item.id} className="group md:grid md:grid-cols-4 md:gap-8 items-baseline border-b border-zinc-800/30 pb-12 last:border-none">
+              
+              {/* Left Column: Dates */}
+              <div className="md:col-span-1 mb-4 md:mb-0">
+                <span className="text-zinc-500 text-xs tracking-widest uppercase block md:mt-1">
+                  {item.period}
+                </span>
               </div>
-              <span className="text-zinc-600 text-sm tracking-widest font-mono mt-2 md:mt-0">{exp.period}</span>
+              
+              {/* Right Column: Details */}
+              <div className="md:col-span-3">
+                <h3 className="text-xl text-white font-light mb-1">{item.role}</h3>
+                <p className="text-zinc-400 text-sm tracking-widest uppercase mb-4">{item.company}</p>
+                <p className="text-zinc-500 font-light text-sm leading-relaxed whitespace-pre-wrap">
+                  {item.description}
+                </p>
+              </div>
             </div>
-            
-            <ul className="space-y-3 mt-4 text-zinc-400">
-              {exp.achievements.map((item, i) => (
-                <li key={i} className="flex items-start">
-                  <span className="text-zinc-700 mr-3 mt-1">▹</span>
-                  <span className="leading-relaxed">{item}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
+          ))}
+          
+          {experienceData.length === 0 && <p className="text-zinc-500 font-light">No experience history available.</p>}
+        </div>
+      )}
     </div>
   );
 }

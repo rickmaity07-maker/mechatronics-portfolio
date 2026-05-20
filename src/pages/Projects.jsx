@@ -1,69 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { supabase } from '../supabaseClient'; // Connected to the live database!
+import { supabase } from '../supabaseClient';
 
 export default function Projects() {
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projectsData, setProjectsData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // FETCH PROJECTS FROM SUPABASE
   useEffect(() => {
-    async function fetchProjects() {
-      const { data, error } = await supabase.from('Projects').select('*');
-      if (error) {
-        console.error("Error fetching projects:", error);
+    const fetchProjects = async () => {
+      const { data, error } = await supabase
+        .from('Projects')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (!error && data) {
+        setProjectsData(data);
       }
-      if (data) {
-        setProjects(data);
-      }
-      setLoading(false);
-    }
-    
+      setIsLoading(false);
+    };
+
     fetchProjects();
   }, []);
 
   return (
-    <div className="animate-fade-in-up space-y-12">
+    <div className="animate-fade-in-up space-y-12 max-w-5xl">
       <div>
-        <h1 className="text-4xl font-light text-white tracking-tight mb-4">Engineering & Design</h1>
+        <h1 className="text-4xl font-light text-white tracking-tight mb-4">Selected Works</h1>
         <div className="h-px w-24 bg-zinc-800"></div>
       </div>
 
-      {loading ? (
-        <div className="py-12 text-zinc-500 tracking-widest uppercase">
-          Loading database...
-        </div>
-      ) : projects.length === 0 ? (
-        <div className="py-12 text-zinc-500">
-          No projects found. Add some in the Admin portal!
+      {isLoading ? (
+        <div className="text-zinc-500 text-sm tracking-widest uppercase animate-pulse pt-4">
+          Loading Database...
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {projects.map((project) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4">
+          {projectsData.map((project) => (
             <Link 
               key={project.id} 
-              to={project.link} // Routes exactly to the link you set in Admin!
-              className="group block p-6 bg-zinc-900/50 border border-zinc-800/50 hover:border-zinc-500 transition-colors flex flex-col h-full"
+              to={project.link}
+              className="group block border border-zinc-800/50 bg-zinc-950/50 p-8 hover:border-zinc-500 transition-colors"
             >
-              <div className="aspect-video bg-zinc-950 mb-6 flex items-center justify-center border border-zinc-800/50">
-                 <span className="text-zinc-700 text-xs tracking-widest uppercase">Project</span>
-              </div>
-              
-              <h3 className="text-xl text-white mb-2">{project.title}</h3>
-              
-              {/* Uses the 'desc' column from Supabase, line-clamp keeps cards even */}
-              <p className="text-zinc-500 text-sm mb-6 flex-grow line-clamp-3">
+              <h3 className="text-2xl font-light text-white mb-3 group-hover:text-zinc-300 transition-colors">
+                {project.title}
+              </h3>
+              <p className="text-zinc-500 font-light text-sm leading-relaxed mb-6 line-clamp-3">
                 {project.desc}
               </p>
-              
-              <div className="flex flex-wrap gap-2 mt-auto">
-                {/* Fallback tag since we don't have a tags column in Supabase yet */}
-                <span className="text-[10px] uppercase tracking-wider px-2 py-1 bg-zinc-800 text-zinc-300">
-                  Engineering
-                </span>
+              <div className="flex items-center text-xs tracking-widest uppercase text-zinc-400 group-hover:text-white transition-colors">
+                <span>View Details</span>
+                <svg className="w-4 h-4 ml-2 transform group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
               </div>
             </Link>
           ))}
+          {projectsData.length === 0 && <p className="text-zinc-500 font-light">No projects available.</p>}
         </div>
       )}
     </div>
