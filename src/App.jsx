@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectDetail from './pages/ProjectDetail';
 import Experience from './pages/Experience';
 import Skills from './pages/Skills';
-import Education from './pages/Education'; // <-- 1. IMPORT ADDED
+import Education from './pages/Education'; 
 import Admin from './pages/Admin';
 
 export default function App() {
@@ -21,20 +22,35 @@ export default function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-zinc-950 text-zinc-400 font-sans">
+      {/* 1. THE BASE COLOR: bg-[#050505] is permanently locked in here */}
+<div className="relative min-h-screen bg-[#050505] text-zinc-400 font-sans selection:bg-zinc-800 selection:text-white overflow-hidden">        
+        {/* 2. THE GLOW: Upgraded to a brighter silver (zinc-400) with 20% opacity so it never vanishes */}
+        <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+          <motion.div 
+            animate={{ 
+              opacity: [0.4, 0.7, 0.4],
+              scale: [1, 1.1, 1] 
+            }}
+            transition={{ 
+              duration: 10, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="absolute -top-[15%] h-[800px] w-full max-w-[1000px] rounded-[100%] bg-[radial-gradient(circle,_rgba(161,161,170,0.15)_0%,_transparent_70%)] blur-[80px]"
+          ></motion.div>
+        </div>
+
+        {/* --- NAVBAR --- */}
         <nav className="fixed w-full z-50 top-0 border-b border-zinc-800/50 bg-zinc-950/70 backdrop-blur-md">
           <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             
             <Link to="/" className="text-xl font-bold tracking-widest text-zinc-100 z-50">RM.</Link>
             
-            {/* --- DESKTOP MENU --- */}
-            <div className="space-x-8 text-sm uppercase tracking-wider hidden md:flex items-center">
+            {/* DESKTOP MENU */}
+            <div className="space-x-8 text-sm uppercase tracking-wider hidden md:flex items-center relative z-50">
               <Link to="/" className="hover:text-white transition-colors">Profile</Link>
               <Link to="/experience" className="hover:text-white transition-colors">Experience</Link>
-              
-              {/* <-- 2. DESKTOP EDUCATION LINK ADDED --> */}
               <Link to="/education" className="hover:text-white transition-colors">Education</Link>
-              
               <Link to="/projects" className="hover:text-white transition-colors">Projects</Link>
               <Link to="/skills" className="hover:text-white transition-colors">Skills</Link>
               {isOwner && (
@@ -44,7 +60,7 @@ export default function App() {
               )}
             </div>
 
-            {/* --- MOBILE HAMBURGER BUTTON --- */}
+            {/* MOBILE HAMBURGER BUTTON */}
             <button 
               className="md:hidden text-zinc-400 hover:text-white z-50"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -59,15 +75,12 @@ export default function App() {
             </button>
           </div>
 
-          {/* --- MOBILE DROPDOWN MENU --- */}
+          {/* MOBILE DROPDOWN MENU */}
           {isMobileMenuOpen && (
-            <div className="md:hidden bg-zinc-950 border-b border-zinc-800/50 px-6 py-6 flex flex-col space-y-6 text-sm uppercase tracking-wider animate-fade-in-up">
+            <div className="md:hidden bg-zinc-950 border-b border-zinc-800/50 px-6 py-6 flex flex-col space-y-6 text-sm uppercase tracking-wider animate-fade-in-up absolute w-full top-full z-50">
               <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Profile</Link>
               <Link to="/experience" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Experience</Link>
-              
-              {/* <-- 3. MOBILE EDUCATION LINK ADDED --> */}
               <Link to="/education" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Education</Link>
-              
               <Link to="/projects" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Projects</Link>
               <Link to="/skills" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Skills</Link>
               {isOwner && (
@@ -79,14 +92,12 @@ export default function App() {
           )}
         </nav>
 
-        <main className="pt-32 pb-16 px-6 max-w-7xl mx-auto">
+        {/* --- MAIN CONTENT LAYER --- */}
+        <main className="relative z-10 pt-32 pb-16 px-6 max-w-7xl mx-auto min-h-screen">
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/experience" element={<Experience />} />
-            
-            {/* <-- 4. EDUCATION ROUTE ADDED --> */}
             <Route path="/education" element={<Education />} />
-            
             <Route path="/skills" element={<Skills />} />
             <Route path="/projects" element={<Projects />} />
             <Route path="/projects/:projectId" element={<ProjectDetail />} />

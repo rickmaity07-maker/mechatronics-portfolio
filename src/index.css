@@ -1,20 +1,11 @@
 @import "tailwindcss";
 
 body {
-  background-color: #09090b; 
+  /* Set to transparent so the App.jsx Framer Motion glow is visible */
+  background-color: transparent; 
   color: #a1a1aa; 
 }
 
-/* Custom Animation for the Skills Marquee */
-@keyframes scroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-scroll {
-  animation: scroll 30s linear infinite;
-}
-
-.animate-scroll:hover {
-  animation-play-state: paused;
-}
+/* Note: All marquee animations were removed from here because 
+  they are now handled natively by Framer Motion in SkillsMarquee.jsx 
+*/
