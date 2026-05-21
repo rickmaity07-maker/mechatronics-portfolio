@@ -9,7 +9,6 @@ export default function Projects() {
 
   useEffect(() => {
     const fetchProjects = async () => {
-      // Fetch all projects, ordered by ID (newest first)
       const { data, error } = await supabase
         .from('Projects')
         .select('*')
@@ -33,7 +32,7 @@ export default function Projects() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto z-10 relative">
+    <div className="max-w-5xl mx-auto z-10 relative mt-8 pb-32">
       
       {/* Page Header */}
       <div className="mb-16">
@@ -41,7 +40,7 @@ export default function Projects() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-5xl font-light text-white mb-4"
+          className="text-5xl font-light text-white mb-4 tracking-tight"
         >
           Selected Works
         </motion.h1>
@@ -55,7 +54,7 @@ export default function Projects() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
-          className="text-zinc-400 max-w-xl"
+          className="text-zinc-400 max-w-xl font-light"
         >
           An archive of engineering projects, mechanical designs, and software development, pulled directly from my live database.
         </motion.p>
@@ -73,10 +72,8 @@ export default function Projects() {
               key={project.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              // Multiply the delay by the index to create the cascading stagger effect
               transition={{ delay: index * 0.15, duration: 0.6, ease: "easeOut" }}
             >
-              {/* This imports all the hover magnification and background image styling automatically */}
               <ProjectCard project={project} />
             </motion.div>
           ))}

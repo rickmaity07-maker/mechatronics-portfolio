@@ -413,10 +413,18 @@ export default function Admin() {
                   )}
                 </div>
                 
-                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Main Description</label><textarea required name="desc" value={formData.desc || ''} onChange={handleInputChange} rows="3" className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                {/* --- NEW SPLIT DESCRIPTION FIELDS --- */}
+                <div className="space-y-2">
+                  <label className="text-xs text-zinc-500 tracking-widest uppercase">Short Description (Grid Preview)</label>
+                  <textarea required name="short_desc" value={formData.short_desc || ''} onChange={handleInputChange} rows="2" maxLength="180" placeholder="A brief 1-2 sentence summary for the main project grid..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs text-zinc-500 tracking-widest uppercase">Main Description (Detail Page)</label>
+                  <textarea required name="desc" value={formData.desc || ''} onChange={handleInputChange} rows="6" placeholder="The deep dive explanation..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-y focus:outline-none focus:border-zinc-500 transition-colors" />
+                </div>
                 
-                {/* --- HARDWARE ENGINEERING FIELDS --- */}
-                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Bill of Materials (BOM) (Optional)</label><textarea name="bom" value={formData.bom || ''} onChange={handleInputChange} rows="4" placeholder="List components..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Bill of Materials (BOM) (Optional)</label><textarea name="bom" value={formData.bom || ''} onChange={handleInputChange} rows="4" placeholder="List components in CSV format..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" /></div>
                 
                 <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Hardware Pin Architecture (Optional)</label><textarea name="hardware_pins" value={formData.hardware_pins || ''} onChange={handleInputChange} rows="4" placeholder="Pin mappings..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white font-mono text-[10px] resize-y focus:outline-none focus:border-zinc-500 transition-colors" /></div>
                 
