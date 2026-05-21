@@ -15,7 +15,6 @@ export default function Admin() {
   const [status, setStatus] = useState(null);
   const [formData, setFormData] = useState({});
   
-  // --- IMAGE MANIPULATION STATES ---
   const [isUploading, setIsUploading] = useState(false);
   const [rawImageSrc, setRawImageSrc] = useState(null); 
   const [imageZoom, setImageZoom] = useState(1);
@@ -80,7 +79,6 @@ export default function Admin() {
 
   const handleInputChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // --- INITIAL FILE PICKER TRIGGER ---
   const handleFileChange = (e, fieldName) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -96,7 +94,6 @@ export default function Admin() {
     reader.readAsDataURL(file);
   };
 
-  // --- RENDERS THE CANVAS MANIPULATION LIVE PREVIEW ---
   useEffect(() => {
     if (!rawImageSrc || !canvasRef.current) return;
 
@@ -142,7 +139,6 @@ export default function Admin() {
     };
   }, [rawImageSrc, imageZoom, targetAspect]);
 
-  // --- MANIPULATE, COMPILE AND UPLOAD TO STORAGE ---
   const handleProcessedUpload = async () => {
     if (!canvasRef.current) return;
     setIsUploading(true);
@@ -247,7 +243,6 @@ export default function Admin() {
     return '';
   };
 
-  // --- RENDER LOGIN SCREEN ---
   if (!session) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center z-10 relative">
@@ -291,7 +286,6 @@ export default function Admin() {
     );
   }
 
-  // --- RENDER DASHBOARD ---
   return (
     <div className="min-h-[80vh] py-12 max-w-5xl mx-auto px-4 z-10 relative">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
@@ -321,7 +315,6 @@ export default function Admin() {
         </div>
       </motion.div>
 
-      {/* --- LIVE INTERACTIVE IMAGE PROCESSING WORKSPACE PANEL --- */}
       <AnimatePresence>
         {rawImageSrc && (
           <motion.div 
@@ -371,8 +364,7 @@ export default function Admin() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-        {/* Editor Form Panel */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <motion.div 
           initial={{ opacity: 0, x: -20 }} 
           animate={{ opacity: 1, x: 0 }} 
@@ -409,7 +401,7 @@ export default function Admin() {
 
             {activeTab === 'Projects' && (
               <>
-                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Title</label><input type="text" required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Project Title</label><input type="text" required name="title" value={formData.title || ''} onChange={handleInputChange} className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors" /></div>
                 
                 <div className="space-y-2">
                   <label className="text-xs text-zinc-500 tracking-widest uppercase">Cover Image Asset</label>
@@ -421,8 +413,18 @@ export default function Admin() {
                   )}
                 </div>
                 
-                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Description</label><textarea required name="desc" value={formData.desc || ''} onChange={handleInputChange} rows="3" className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" /></div>
-                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Routing Link</label><input type="text" required name="link" value={formData.link || ''} onChange={handleInputChange} className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Main Description</label><textarea required name="desc" value={formData.desc || ''} onChange={handleInputChange} rows="3" className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                
+                {/* --- HARDWARE ENGINEERING FIELDS --- */}
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Bill of Materials (BOM) (Optional)</label><textarea name="bom" value={formData.bom || ''} onChange={handleInputChange} rows="4" placeholder="List components..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white resize-none focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Hardware Pin Architecture (Optional)</label><textarea name="hardware_pins" value={formData.hardware_pins || ''} onChange={handleInputChange} rows="4" placeholder="Pin mappings..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white font-mono text-[10px] resize-y focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Arduino Firmware (C++) (Optional)</label><textarea name="firmware_code" value={formData.firmware_code || ''} onChange={handleInputChange} rows="6" placeholder="#include <AccelStepper.h>..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-emerald-400 font-mono text-[10px] resize-y focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Simulation HTML Code (Optional)</label><textarea name="simulation_code" value={formData.simulation_code || ''} onChange={handleInputChange} rows="4" placeholder="<!DOCTYPE html>..." className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white font-mono text-[10px] resize-y focus:outline-none focus:border-zinc-500 transition-colors" /></div>
+                
+                <div className="space-y-2"><label className="text-xs text-zinc-500 tracking-widest uppercase">Routing Link ID</label><input type="text" required name="link" value={formData.link || ''} onChange={handleInputChange} className="w-full bg-zinc-900/50 border border-zinc-800 px-4 py-3 text-white focus:outline-none focus:border-zinc-500 transition-colors" /></div>
               </>
             )}
 
@@ -475,7 +477,6 @@ export default function Admin() {
           </form>
         </motion.div>
 
-        {/* Database Live View Panel */}
         <motion.div 
           initial={{ opacity: 0, x: 20 }} 
           animate={{ opacity: 1, x: 0 }} 

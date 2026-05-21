@@ -4,6 +4,39 @@ import { supabase } from '../supabaseClient';
 import { motion } from 'framer-motion';
 import ExpandableImage from '../components/ExpandableImage';
 
+// --- DATA PARSER ---
+// Safely splits CSV text into rows and columns, respecting commas inside quotation marks
+const parseCSV = (csvText) => {
+  if (!csvText) return [];
+  const rows = [];
+  let currentRow = [];
+  let currentCell = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < csvText.length; i++) {
+    const char = csvText[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === ',' && !inQuotes) {
+      currentRow.push(currentCell.trim());
+      currentCell = '';
+    } else if (char === '\n' && !inQuotes) {
+      currentRow.push(currentCell.trim());
+      rows.push(currentRow);
+      currentRow = [];
+      currentCell = '';
+    } else {
+      currentCell += char;
+    }
+  }
+  if (currentCell || currentRow.length > 0) {
+    currentRow.push(currentCell.trim());
+    rows.push(currentRow);
+  }
+  // Filter out any empty rows at the bottom
+  return rows.filter(row => row.join('').trim() !== '');
+};
+
 export default function ProjectDetail() {
   const { projectId } = useParams(); 
   const [project, setProject] = useState(null);
@@ -11,14 +44,13 @@ export default function ProjectDetail() {
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
-      // Reconstruct the link format we saved in the database
       const searchLink = `/projects/${projectId}`;
       
       const { data, error } = await supabase
         .from('Projects')
         .select('*')
         .eq('link', searchLink)
-        .single(); // We only want one exact match
+        .single(); 
 
       if (!error && data) {
         setProject(data);
@@ -49,8 +81,13 @@ export default function ProjectDetail() {
     );
   }
 
+  // Pre-process the BOM data if it exists
+  const bomRows = project.bom ? parseCSV(project.bom) : [];
+  const bomHeaders = bomRows.length > 0 ? bomRows[0] : [];
+  const bomData = bomRows.length > 1 ? bomRows.slice(1) : [];
+
   return (
-    <div className="max-w-5xl mx-auto z-10 relative mt-8 pb-24">
+    <div className="max-w-4xl mx-auto z-10 relative mt-8 pb-32">
       
       {/* Back Button */}
       <motion.div
@@ -67,7 +104,7 @@ export default function ProjectDetail() {
         </Link>
       </motion.div>
 
-      <div className="space-y-16">
+      <div className="space-y-12">
         
         {/* Title & Divider */}
         <div>
@@ -75,7 +112,7 @@ export default function ProjectDetail() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="text-4xl md:text-6xl font-light tracking-tight text-white mb-6"
+            className="text-4xl md:text-5xl font-light tracking-tight text-white mb-6"
           >
             {project.title}
           </motion.h1>
@@ -87,35 +124,125 @@ export default function ProjectDetail() {
           ></motion.div>
         </div>
 
-        {/* Hero Image (using the ExpandableImage component) */}
-        {project.image && (
+        {/* --- CONDITIONAL RENDER: HERO IMAGE --- */}
+        {project.image && project.image.trim() !== '' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="w-full"
+            className="w-full pb-8"
           >
             <ExpandableImage
               src={project.image}
               alt={project.title}
-              // Using an ultra-wide cinematic aspect ratio for project banners
-              className="w-full aspect-video md:aspect-[21/9] object-cover border border-zinc-800/50"
+              className="w-full aspect-video object-cover border border-zinc-800/50"
               layoutId={`project-img-${project.id}`}
             />
           </motion.div>
         )}
 
-        {/* Project Description */}
+        {/* Main Description */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="max-w-3xl"
         >
           <p className="text-zinc-400 font-light leading-relaxed text-lg whitespace-pre-wrap">
             {project.desc}
           </p>
         </motion.div>
+
+        {/* --- CONDITIONAL RENDER: BOM (NOW AS A TABLE) --- */}
+        {bomRows.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="pt-8"
+          >
+            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase border-b border-zinc-800/50 pb-4 mb-6">Bill of Materials (BOM)</h3>
+            
+            <div className="overflow-x-auto border border-zinc-800/50 bg-zinc-950/30">
+              <table className="w-full text-left border-collapse min-w-[600px]">
+                <thead>
+                  <tr className="border-b border-zinc-800/50 bg-zinc-900/50 text-zinc-500 text-[10px] uppercase tracking-widest">
+                    {bomHeaders.map((header, i) => (
+                      <th key={i} className="py-4 px-6 font-normal">{header.replace(/^"|"$/g, '')}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="text-sm text-zinc-300 font-light divide-y divide-zinc-800/50">
+                  {bomData.map((row, rowIndex) => (
+                    <tr key={rowIndex} className="hover:bg-zinc-900/30 transition-colors">
+                      {row.map((cell, cellIndex) => (
+                        <td 
+                          key={cellIndex} 
+                          // If it's the last column (Engineering Purpose), let it take up more space
+                          className={`py-4 px-6 leading-relaxed ${cellIndex === row.length - 1 ? 'w-1/2' : ''}`}
+                        >
+                          {/* Remove any lingering quotation marks from the CSV data */}
+                          {cell.replace(/^"|"$/g, '')}
+                        </td>
+                      ))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </motion.div>
+        )}
+
+        {/* --- CONDITIONAL RENDER: HARDWARE PINS --- */}
+        {project.hardware_pins && project.hardware_pins.trim() !== '' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="pt-8"
+          >
+            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase border-b border-zinc-800/50 pb-4 mb-6">Hardware Pin Architecture</h3>
+            <div className="text-zinc-300 font-mono text-sm leading-relaxed whitespace-pre-wrap bg-zinc-950/50 p-6 border border-zinc-800/50">
+              {project.hardware_pins}
+            </div>
+          </motion.div>
+        )}
+
+        {/* --- CONDITIONAL RENDER: FIRMWARE CODE --- */}
+        {project.firmware_code && project.firmware_code.trim() !== '' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
+            className="pt-8"
+          >
+            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase border-b border-zinc-800/50 pb-4 mb-6">Arduino Firmware (C++)</h3>
+            <div className="w-full bg-[#0a0a0a] border border-zinc-800/50 p-6 overflow-x-auto">
+              <pre className="text-emerald-400/90 font-mono text-xs md:text-sm leading-loose">
+                <code>{project.firmware_code}</code>
+              </pre>
+            </div>
+          </motion.div>
+        )}
+
+        {/* --- CONDITIONAL RENDER: SIMULATION --- */}
+        {project.simulation_code && project.simulation_code.trim() !== '' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="pt-16 border-t border-zinc-800/50 mt-16 w-full"
+          >
+            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-8">Live Interactive Simulation</h3>
+            <div className="w-full h-[800px] border border-zinc-800/50 bg-[#0a0a0a] overflow-hidden rounded-sm">
+              <iframe
+                srcDoc={project.simulation_code}
+                className="w-full h-full border-0"
+                sandbox="allow-scripts allow-same-origin"
+                title="Project Interactive Simulation"
+              />
+            </div>
+          </motion.div>
+        )}
 
       </div>
     </div>
