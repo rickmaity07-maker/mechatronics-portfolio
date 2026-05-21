@@ -5,7 +5,6 @@ import { motion } from 'framer-motion';
 import ExpandableImage from '../components/ExpandableImage';
 
 // --- DATA PARSER ---
-// Safely splits CSV text into rows and columns, respecting commas inside quotation marks
 const parseCSV = (csvText) => {
   if (!csvText) return [];
   const rows = [];
@@ -33,14 +32,40 @@ const parseCSV = (csvText) => {
     currentRow.push(currentCell.trim());
     rows.push(currentRow);
   }
-  // Filter out any empty rows at the bottom
   return rows.filter(row => row.join('').trim() !== '');
+};
+
+// --- RUNTIME INJECTION: PREVENT IFRAME SCROLL JUMP ---
+// This intercepts the raw HTML from Supabase and overwrites the browser's native scroll behavior.
+const injectScrollBlocker = (htmlCode) => {
+  if (!htmlCode) return "";
+  
+  const blockerScript = `
+    <script>
+      // Overwrite the browser's default scroll command inside this specific iframe
+      Element.prototype.scrollIntoView = function() {
+        // Find the immediate container (e.g., the serial console) and scroll ONLY that container
+        const container = this.parentElement;
+        if (container) {
+          container.scrollTop = container.scrollHeight;
+        }
+      };
+    </script>
+  `;
+  
+  // Inject the script directly into the HTML head before React renders it
+  return htmlCode.replace('<head>', '<head>' + blockerScript);
 };
 
 export default function ProjectDetail() {
   const { projectId } = useParams(); 
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Force scroll to top on mount
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   useEffect(() => {
     const fetchProjectDetails = async () => {
@@ -81,7 +106,6 @@ export default function ProjectDetail() {
     );
   }
 
-  // Pre-process the BOM data if it exists
   const bomRows = project.bom ? parseCSV(project.bom) : [];
   const bomHeaders = bomRows.length > 0 ? bomRows[0] : [];
   const bomData = bomRows.length > 1 ? bomRows.slice(1) : [];
@@ -124,7 +148,7 @@ export default function ProjectDetail() {
           ></motion.div>
         </div>
 
-        {/* --- CONDITIONAL RENDER: HERO IMAGE --- */}
+        {/* HERO IMAGE */}
         {project.image && project.image.trim() !== '' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -141,7 +165,7 @@ export default function ProjectDetail() {
           </motion.div>
         )}
 
-        {/* Main Description */}
+        {/* OVERVIEW / MAIN DESC */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -152,16 +176,37 @@ export default function ProjectDetail() {
           </p>
         </motion.div>
 
-        {/* --- CONDITIONAL RENDER: BOM (NOW AS A TABLE) --- */}
+        {/* --- SIMULATION MOVED HERE (Right after Overview) --- */}
+        {project.simulation_code && project.simulation_code.trim() !== '' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.45 }}
+            className="pt-8 w-full"
+          >
+            {/* Reduced visual weight of the header to integrate better */}
+            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-6 border-b border-zinc-800/50 pb-4">Live Interactive Simulation</h3>
+            <div className="w-full h-[950px] border border-zinc-800/50 bg-[#0a0a0a] overflow-hidden rounded-sm shadow-2xl">
+              <iframe
+                // The crucial change: passing the database code through the scroll-blocker function
+                srcDoc={injectScrollBlocker(project.simulation_code)}
+                className="w-full h-full border-0"
+                sandbox="allow-scripts allow-same-origin"
+                title="Project Interactive Simulation"
+              />
+            </div>
+          </motion.div>
+        )}
+
+        {/* BOM TABLE */}
         {bomRows.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="pt-8"
+            transition={{ duration: 0.6, delay: 0.5 }}
+            className="pt-16"
           >
             <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase border-b border-zinc-800/50 pb-4 mb-6">Bill of Materials (BOM)</h3>
-            
             <div className="overflow-x-auto border border-zinc-800/50 bg-zinc-950/30">
               <table className="w-full text-left border-collapse min-w-[600px]">
                 <thead>
@@ -177,10 +222,8 @@ export default function ProjectDetail() {
                       {row.map((cell, cellIndex) => (
                         <td 
                           key={cellIndex} 
-                          // If it's the last column (Engineering Purpose), let it take up more space
                           className={`py-4 px-6 leading-relaxed ${cellIndex === row.length - 1 ? 'w-1/2' : ''}`}
                         >
-                          {/* Remove any lingering quotation marks from the CSV data */}
                           {cell.replace(/^"|"$/g, '')}
                         </td>
                       ))}
@@ -192,12 +235,12 @@ export default function ProjectDetail() {
           </motion.div>
         )}
 
-        {/* --- CONDITIONAL RENDER: HARDWARE PINS --- */}
+        {/* HARDWARE PINS */}
         {project.hardware_pins && project.hardware_pins.trim() !== '' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.5 }}
+            transition={{ duration: 0.6, delay: 0.55 }}
             className="pt-8"
           >
             <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase border-b border-zinc-800/50 pb-4 mb-6">Hardware Pin Architecture</h3>
@@ -207,12 +250,12 @@ export default function ProjectDetail() {
           </motion.div>
         )}
 
-        {/* --- CONDITIONAL RENDER: FIRMWARE CODE --- */}
+        {/* FIRMWARE CODE */}
         {project.firmware_code && project.firmware_code.trim() !== '' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.55 }}
+            transition={{ duration: 0.6, delay: 0.6 }}
             className="pt-8"
           >
             <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase border-b border-zinc-800/50 pb-4 mb-6">Arduino Firmware (C++)</h3>
@@ -220,26 +263,6 @@ export default function ProjectDetail() {
               <pre className="text-emerald-400/90 font-mono text-xs md:text-sm leading-loose">
                 <code>{project.firmware_code}</code>
               </pre>
-            </div>
-          </motion.div>
-        )}
-
-        {/* --- CONDITIONAL RENDER: SIMULATION --- */}
-        {project.simulation_code && project.simulation_code.trim() !== '' && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="pt-16 border-t border-zinc-800/50 mt-16 w-full"
-          >
-            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-8">Live Interactive Simulation</h3>
-            <div className="w-full h-[800px] border border-zinc-800/50 bg-[#0a0a0a] overflow-hidden rounded-sm">
-              <iframe
-                srcDoc={project.simulation_code}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin"
-                title="Project Interactive Simulation"
-              />
             </div>
           </motion.div>
         )}
