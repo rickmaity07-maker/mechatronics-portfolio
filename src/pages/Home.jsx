@@ -128,7 +128,9 @@ export default function Home() {
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent"></div>
               
               <h4 className="text-4xl font-light text-white mb-2 relative z-10 drop-shadow-lg">{active.title}</h4>
-              <p className="text-zinc-400 max-w-xl relative z-10">{active.desc}</p>
+              
+              {/* THE FIX: Now safely checks for short_desc first */}
+              <p className="text-zinc-400 max-w-xl relative z-10">{active.short_desc || active.desc}</p>
               
               <div className="flex gap-4 mt-8 relative z-10">
                 <button onClick={handlePrev} className="text-zinc-500 hover:text-white transition-colors">← PREV</button>
