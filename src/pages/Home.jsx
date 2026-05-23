@@ -75,11 +75,11 @@ export default function Home() {
                     CONTACTS <span className="text-[8px]">▼</span>
                   </button>
                   
-                  {/* The outer wrapper handles opacity (fixing the Safari blur bug) */}
-                  <div className={`absolute top-full left-0 pt-4 z-[999] transition-all duration-300 md:group-hover:opacity-100 md:group-hover:visible md:group-hover:translate-y-0 ${isContactsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
+                  {/* THE FIX: Replaced left-0 with right-0 md:right-auto md:left-0 */}
+                  <div className={`absolute top-full right-0 md:right-auto md:left-0 pt-4 z-[999] transition-all duration-300 md:group-hover:opacity-100 md:group-hover:visible md:group-hover:translate-y-0 ${isContactsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
                     
-                    {/* The inner wrapper handles the Titanium Frosted Glass effect safely */}
-                    <div className="bg-zinc-900/70 backdrop-blur-2xl border border-zinc-700 p-6 flex flex-col gap-6 min-w-[280px] shadow-2xl rounded-sm">
+                    {/* THE FIX: Adjusted min-width for mobile screens */}
+                    <div className="bg-zinc-900/70 backdrop-blur-2xl border border-zinc-700 p-6 flex flex-col gap-6 min-w-[260px] md:min-w-[280px] shadow-2xl rounded-sm">
                       
                       {profile.email && (
                         <div className="flex justify-between items-center gap-6 border-b border-zinc-800/50 pb-4">
