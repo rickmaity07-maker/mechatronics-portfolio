@@ -67,9 +67,12 @@ export default function Home() {
 
   return (
     <div className="relative z-10 pb-24">
+      
       {/* 1. HERO SECTION */}
-      <div className="min-h-[85vh] flex items-center px-6 max-w-6xl mx-auto pt-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full items-center">
+      {/* THE FIX: Changed to min-h-[90vh] with pt-28 to pull content up to the navbar while pushing projects below the fold */}
+      <div className="w-full min-h-[90vh] pt-28 md:pt-32 px-6 max-w-6xl mx-auto flex flex-col justify-start">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
           <div>
             <h2 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-4">{profile.role}</h2>
             <h1 className="text-6xl md:text-8xl font-light text-white mb-8">{profile.name}</h1>
@@ -81,7 +84,6 @@ export default function Home() {
               
               {(profile.email || profile.phone || profile.linkedin) && (
                 <div className="relative py-2 group contacts-dropdown">
-                  {/* Toggles state on mobile tap, relies on group-hover for desktop */}
                   <button 
                     onClick={() => setIsContactsOpen(!isContactsOpen)}
                     className="text-xs tracking-[0.2em] uppercase text-zinc-500 hover:text-white transition-colors flex items-center gap-2"
@@ -89,10 +91,8 @@ export default function Home() {
                     CONTACTS <span className="text-[8px]">▼</span>
                   </button>
                   
-                  {/* THE FIX: Replaced left-0 with right-0 md:right-auto md:left-0 */}
                   <div className={`absolute top-full right-0 md:right-auto md:left-0 pt-4 z-[999] transition-all duration-300 md:group-hover:opacity-100 md:group-hover:visible md:group-hover:translate-y-0 ${isContactsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
                     
-                    {/* THE FIX: Adjusted min-width for mobile screens */}
                     <div className="bg-zinc-900/70 backdrop-blur-2xl border border-zinc-700 p-6 flex flex-col gap-6 min-w-[260px] md:min-w-[280px] shadow-2xl rounded-sm">
                       
                       {profile.email && (
@@ -160,7 +160,7 @@ export default function Home() {
 
       {/* 2. FEATURED PROJECTS CAROUSEL */}
       {active && (
-        <div className="max-w-5xl mx-auto px-6 mt-24">
+        <div className="max-w-5xl mx-auto px-6 mt-12 md:mt-24">
           <h3 className="text-zinc-500 text-xs tracking-[0.2em] uppercase mb-12 text-center">Featured Work</h3>
           <AnimatePresence mode="wait">
             <motion.div 
