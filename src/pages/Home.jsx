@@ -3,6 +3,20 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// --- MINIMALIST UI ICONS ---
+const CopyIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
+
 export default function Home() {
   const [data, setData] = useState({ profile: null, projects: [], skills: [] });
   const [isLoading, setIsLoading] = useState(true);
@@ -84,10 +98,10 @@ export default function Home() {
                       {profile.email && (
                         <div className="flex justify-between items-center gap-6 border-b border-zinc-800/50 pb-4">
                           <span className="text-[10px] text-zinc-500 uppercase">Email</span>
-                          <div className="flex gap-4">
+                          <div className="flex items-center gap-4">
                             <a href={`mailto:${profile.email}`} className="text-xs tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors py-1">OPEN ↗</a>
-                            <button onClick={() => handleCopy(profile.email)} className="text-xs text-white hover:text-zinc-400 transition-colors py-1">
-                              {copiedItem === profile.email ? '✓ COPIED' : 'COPY'}
+                            <button onClick={() => handleCopy(profile.email)} className="text-zinc-400 hover:text-white transition-colors py-1" title="Copy Email">
+                              {copiedItem === profile.email ? <CheckIcon /> : <CopyIcon />}
                             </button>
                           </div>
                         </div>
@@ -96,10 +110,10 @@ export default function Home() {
                       {profile.phone && (
                         <div className="flex justify-between items-center gap-6 border-b border-zinc-800/50 pb-4">
                           <span className="text-[10px] text-zinc-500 uppercase">Phone</span>
-                          <div className="flex gap-4">
+                          <div className="flex items-center gap-4">
                             <a href={`tel:${profile.phone}`} className="text-xs tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors py-1">CALL ↗</a>
-                            <button onClick={() => handleCopy(profile.phone)} className="text-xs text-white hover:text-zinc-400 transition-colors py-1">
-                              {copiedItem === profile.phone ? '✓ COPIED' : 'COPY'}
+                            <button onClick={() => handleCopy(profile.phone)} className="text-zinc-400 hover:text-white transition-colors py-1" title="Copy Phone">
+                              {copiedItem === profile.phone ? <CheckIcon /> : <CopyIcon />}
                             </button>
                           </div>
                         </div>
@@ -108,9 +122,14 @@ export default function Home() {
                       {profile.linkedin && (
                         <div className="flex justify-between items-center gap-6">
                           <span className="text-[10px] text-zinc-500 uppercase">LinkedIn</span>
-                          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="text-xs tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors py-1">
-                            CONNECT ↗
-                          </a>
+                          <div className="flex items-center gap-4">
+                            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="text-xs tracking-widest text-emerald-400 hover:text-emerald-300 transition-colors py-1">
+                              CONNECT ↗
+                            </a>
+                            <button onClick={() => handleCopy(profile.linkedin)} className="text-zinc-400 hover:text-white transition-colors py-1" title="Copy Link">
+                              {copiedItem === profile.linkedin ? <CheckIcon /> : <CopyIcon />}
+                            </button>
+                          </div>
                         </div>
                       )}
 
