@@ -4,15 +4,20 @@ import { motion } from 'framer-motion';
 
 export default function Skills() {
   const [skillsData, setSkillsData] = useState({});
+  const [profile, setProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const fetchSkills = async () => {
-      const { data, error } = await supabase.from('Skills').select('*');
+    const fetchPageData = async () => {
+      // THE FIX: Fetch both Skills and Profile data simultaneously
+      const [skillsRes, profileRes] = await Promise.all([
+        supabase.from('Skills').select('*'),
+        supabase.from('Profile').select('*').limit(1)
+      ]);
 
-      if (!error && data) {
+      if (!skillsRes.error && skillsRes.data) {
         // Group the flat database rows into categories automatically
-        const grouped = data.reduce((acc, skill) => {
+        const grouped = skillsRes.data.reduce((acc, skill) => {
           const category = skill.category || 'Uncategorized';
           if (!acc[category]) {
             acc[category] = [];
@@ -23,10 +28,15 @@ export default function Skills() {
         
         setSkillsData(grouped);
       }
+
+      if (!profileRes.error && profileRes.data) {
+        setProfile(profileRes.data[0]);
+      }
+
       setIsLoading(false);
     };
 
-    fetchSkills();
+    fetchPageData();
   }, []);
 
   if (isLoading) {
@@ -40,6 +50,22 @@ export default function Skills() {
   return (
     <div className="max-w-5xl mx-auto z-10 relative">
       
+      {/* --- IN DEVELOPMENT BANNER --- */}
+      {profile?.in_development && (
+        <motion.div 
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full bg-amber-950/20 border-b border-amber-900/40 py-4 px-6 flex items-center justify-center gap-4 backdrop-blur-md mb-12 rounded-sm shadow-[0_0_15px_rgba(251,191,36,0.05)]"
+        >
+          <svg className="w-4 h-4 text-amber-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+          <span className="text-[10px] text-amber-500/90 tracking-[0.2em] uppercase font-mono mt-[1px]">
+            System Notice: This data section is currently under active development.
+          </span>
+        </motion.div>
+      )}
+
       {/* Page Header */}
       <div className="mb-20">
         <motion.h1 
