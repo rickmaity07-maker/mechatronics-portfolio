@@ -64,40 +64,50 @@ export default function Home() {
   const active = projects[currentProjectIndex];
 
   return (
-    <div className="relative z-10 pb-24">
+    // THE FIX: Added framer motion wrapper for fluid page routing
+    <m.div 
+      className="relative z-10 pb-24"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+    >
       
-      {/* THE FIX: Reduced pt-28 to pt-24 on mobile to pull the entire hero section up */}
-      <div className="w-full min-h-[90vh] pt-24 md:pt-32 px-6 max-w-6xl mx-auto flex flex-col justify-start">
+      {/* THE FIX: Changed pt-24 to pt-16 on mobile to completely remove the top dead space */}
+      <div className="w-full min-h-[90vh] pt-16 md:pt-32 px-6 max-w-6xl mx-auto flex flex-col justify-start">
         
-        {/* THE FIX: Reduced mobile gap-y-10 to gap-y-6 */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-y-6 md:gap-y-0 md:gap-x-12 w-full mt-0">
+        {/* THE FIX: Tightened the main gap to squeeze the text and photo together */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-y-4 md:gap-y-0 md:gap-x-12 w-full mt-0">
           
           {/* 1. TEXT BLOCK */}
-          {/* THE FIX: Changed 'justify-end' to 'justify-start md:justify-end' so it doesn't sink on mobile */}
           <div className="order-1 md:col-start-1 md:row-start-1 flex flex-col justify-start md:justify-end md:pb-8">
             
             {profile?.available_to_work && (
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-sm border border-emerald-900/50 bg-emerald-950/20 mb-6 md:mb-8 backdrop-blur-md w-fit">
+              <div className="inline-flex items-center gap-3 px-3 md:px-4 py-1.5 md:py-2 rounded-sm border border-emerald-900/50 bg-emerald-950/20 mb-4 md:mb-8 backdrop-blur-md w-fit">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                 </span>
-                <span className="text-[9px] text-emerald-400 tracking-[0.3em] uppercase font-mono mt-[1px]">Available for Opportunities</span>
+                <span className="text-[8px] md:text-[9px] text-emerald-400 tracking-[0.3em] uppercase font-mono mt-[1px]">Available for Opportunities</span>
               </div>
             )}
 
-            {/* THE FIX: Tightened all mb-8 to mb-4 on mobile to fit the photo on screen without scrolling */}
-            <h2 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-3 md:mb-4">{profile.role}</h2>
-            <h1 className="text-5xl md:text-8xl font-light text-white mb-4 md:mb-8 drop-shadow-xl tracking-tight">{profile.name}</h1>
-            <div className="h-px w-20 bg-gradient-to-r from-zinc-600 to-transparent mb-4 md:mb-8"></div>
-            <p className="text-zinc-400 leading-relaxed font-light max-w-md text-sm md:text-base">{profile.bio}</p>
+            <h2 className="text-zinc-500 tracking-[0.2em] text-[10px] md:text-xs uppercase mb-2 md:mb-4">{profile.role}</h2>
+            
+            {/* THE FIX: Reduced mobile font size slightly to prevent wrapping issues, keeping everything tight */}
+            <h1 className="text-5xl md:text-8xl font-light text-white mb-3 md:mb-8 drop-shadow-xl tracking-tight">{profile.name}</h1>
+            <div className="h-px w-16 md:w-20 bg-gradient-to-r from-zinc-600 to-transparent mb-3 md:mb-8"></div>
+            
+            {/* THE FIX: Reduced mobile line-height slightly to compress bio height */}
+            <p className="text-zinc-400 leading-snug md:leading-relaxed font-light max-w-md text-sm md:text-base mb-2 md:mb-0">{profile.bio}</p>
           </div>
 
           {/* 2. PHOTO BLOCK */}
           <div className="order-2 md:col-start-2 md:row-start-1 md:row-span-2 flex items-center w-full md:w-auto">
             {profile.photo && (
               <m.div 
-                className="w-full md:w-[400px] aspect-[4/5] overflow-hidden border border-zinc-800/50 shadow-2xl cursor-pointer bg-zinc-900 will-change-transform"
+                // THE FIX: Constrained mobile height to guarantee it fits above the fold
+                className="w-full md:w-[400px] h-[45vh] md:h-auto aspect-auto md:aspect-[4/5] overflow-hidden border border-zinc-800/50 shadow-2xl cursor-pointer bg-zinc-900 will-change-transform"
                 whileHover={{ scale: 1.02 }}
                 transition={{ ease: "easeOut", duration: 0.3 }}
                 onClick={() => setIsImageOpen(true)}
@@ -112,7 +122,8 @@ export default function Home() {
           </div>
 
           {/* 3. BUTTONS BLOCK */}
-          <div className="order-3 md:col-start-1 md:row-start-2 flex items-start z-30 pt-2 md:pt-0">
+          {/* THE FIX: Pulled the buttons up with negative margin on mobile to tuck them right under the photo */}
+          <div className="order-3 md:col-start-1 md:row-start-2 flex items-start z-30 pt-4 md:pt-0">
             <div className="flex gap-4 md:gap-6 items-center">
               <Link to="/projects" className="px-6 md:px-8 py-3 md:py-4 bg-white text-black text-[10px] md:text-xs font-bold tracking-widest uppercase hover:bg-zinc-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-300">
                 VIEW PROJECTS
@@ -263,6 +274,6 @@ export default function Home() {
         )}
       </AnimatePresence>
 
-    </div>
+    </m.div>
   );
 }
