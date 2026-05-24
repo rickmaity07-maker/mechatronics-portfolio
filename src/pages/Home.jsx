@@ -67,11 +67,15 @@ export default function Home() {
     <div className="relative z-10 pb-24">
       
       <div className="w-full min-h-[90vh] pt-28 md:pt-32 px-6 max-w-6xl mx-auto flex flex-col justify-start">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
-          <div>
+        
+        {/* THE FIX: Replaced simple grid with explicit CSS Coordinates for absolute Mobile/Desktop control */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-y-10 md:gap-y-0 md:gap-x-12 w-full mt-4 md:mt-0">
+          
+          {/* 1. TEXT BLOCK: Top on Mobile (order-1), Top-Left on Desktop (row 1, col 1) */}
+          <div className="order-1 md:col-start-1 md:row-start-1 flex flex-col justify-end md:pb-8">
             
             {profile?.available_to_work && (
-              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-sm border border-emerald-900/50 bg-emerald-950/20 mb-8 backdrop-blur-md">
+              <div className="inline-flex items-center gap-3 px-4 py-2 rounded-sm border border-emerald-900/50 bg-emerald-950/20 mb-8 backdrop-blur-md w-fit">
                 <span className="relative flex h-2 w-2">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -83,8 +87,29 @@ export default function Home() {
             <h2 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-4">{profile.role}</h2>
             <h1 className="text-6xl md:text-8xl font-light text-white mb-8 drop-shadow-xl">{profile.name}</h1>
             <div className="h-px w-20 bg-gradient-to-r from-zinc-600 to-transparent mb-8"></div>
-            <p className="text-zinc-400 leading-relaxed font-light mb-8 max-w-md">{profile.bio}</p>
-            
+            <p className="text-zinc-400 leading-relaxed font-light max-w-md">{profile.bio}</p>
+          </div>
+
+          {/* 2. PHOTO BLOCK: Middle on Mobile (order-2), Right Side spanning both rows on Desktop (row 1-2, col 2) */}
+          <div className="order-2 md:col-start-2 md:row-start-1 md:row-span-2 flex items-center w-full md:w-auto">
+            {profile.photo && (
+              <m.div 
+                className="w-full md:w-[400px] aspect-[4/5] overflow-hidden border border-zinc-800/50 shadow-2xl cursor-pointer bg-zinc-900 will-change-transform"
+                whileHover={{ scale: 1.02 }}
+                transition={{ ease: "easeOut", duration: 0.3 }}
+                onClick={() => setIsImageOpen(true)}
+              >
+                <m.img 
+                  src={profile.photo} 
+                  className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" 
+                  layoutId="profile-img" 
+                />
+              </m.div>
+            )}
+          </div>
+
+          {/* 3. BUTTONS BLOCK: Bottom on Mobile (order-3), Bottom-Left on Desktop (row 2, col 1) */}
+          <div className="order-3 md:col-start-1 md:row-start-2 flex items-start z-30 pt-2 md:pt-0">
             <div className="flex gap-6 items-center">
               <Link to="/projects" className="px-8 py-4 bg-white text-black text-xs font-bold tracking-widest uppercase hover:bg-zinc-200 hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] transition-all duration-300">
                 VIEW PROJECTS
@@ -147,20 +172,6 @@ export default function Home() {
             </div>
           </div>
           
-          {profile.photo && (
-            <m.div 
-              className="w-full md:w-[400px] aspect-[4/5] ml-auto overflow-hidden border border-zinc-800/50 shadow-2xl cursor-pointer bg-zinc-900 will-change-transform"
-              whileHover={{ scale: 1.02 }}
-              transition={{ ease: "easeOut", duration: 0.3 }}
-              onClick={() => setIsImageOpen(true)}
-            >
-              <m.img 
-                src={profile.photo} 
-                className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" 
-                layoutId="profile-img" 
-              />
-            </m.div>
-          )}
         </div>
       </div>
 
@@ -178,7 +189,6 @@ export default function Home() {
               className="relative border border-zinc-800/50 bg-zinc-950/40 backdrop-blur-xl p-12 min-h-[400px] flex flex-col justify-end overflow-hidden group shadow-2xl will-change-transform"
             >
               
-              {/* --- NEW: PROJECT DEVELOPMENT TELEMETRY TAG --- */}
               {active.in_development && (
                 <div className="absolute top-8 right-8 z-20 inline-flex items-center gap-2 px-3 py-1.5 rounded-sm border border-amber-500/30 bg-amber-950/40 backdrop-blur-md">
                   <span className="relative flex h-1.5 w-1.5">
