@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { m, AnimatePresence } from 'framer-motion';
 
-// --- MINIMALIST UI ICONS ---
 const CopyIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
@@ -38,15 +37,13 @@ export default function Home() {
 
   useEffect(() => {
     const fetchHomeData = async () => {
-      // PERFORMANCE OVERRIDE: Check Browser Cache First (0ms load time if returning to page)
       const cachedData = sessionStorage.getItem('kern_home_data');
       if (cachedData) {
         setData(JSON.parse(cachedData));
         setIsLoading(false);
-        return; // Skip the database call entirely
+        return; 
       }
 
-      // If no cache, hit the database
       const [pRes, projRes, sRes] = await Promise.all([
         supabase.from('Profile').select('*').limit(1),
         supabase.from('Projects').select('*').order('id', { ascending: false }),
@@ -54,8 +51,6 @@ export default function Home() {
       ]);
 
       const freshData = { profile: pRes.data?.[0], projects: projRes.data || [], skills: sRes.data || [] };
-      
-      // Save data to session cache to prevent future loading screens
       sessionStorage.setItem('kern_home_data', JSON.stringify(freshData));
       
       setData(freshData);
@@ -78,6 +73,10 @@ export default function Home() {
   const { profile, projects, skills } = data;
   const active = projects[currentProjectIndex];
 
+  // Extract your skills and duplicate them once so the base array is incredibly dense
+  const dbSkillNames = skills.map(s => s.name);
+  const baseSkills = [...dbSkillNames, ...dbSkillNames];
+
   return (
     <m.div 
       className="relative z-10 pb-24"
@@ -86,14 +85,10 @@ export default function Home() {
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
-      
       <div className="w-full min-h-[90vh] pt-16 md:pt-32 px-6 max-w-6xl mx-auto flex flex-col justify-start">
-        
         <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-y-4 md:gap-y-0 md:gap-x-12 w-full mt-0">
           
-          {/* 1. TEXT BLOCK */}
           <div className="order-1 md:col-start-1 md:row-start-1 flex flex-col justify-start md:justify-end md:pb-8">
-            
             {profile?.available_to_work && (
               <div className="inline-flex items-center gap-3 px-3 md:px-4 py-1.5 md:py-2 rounded-sm border border-emerald-900/50 bg-emerald-950/20 mb-4 md:mb-8 backdrop-blur-md w-fit">
                 <span className="relative flex h-2 w-2">
@@ -110,7 +105,6 @@ export default function Home() {
             <p className="text-zinc-400 leading-snug md:leading-relaxed font-light max-w-md text-sm md:text-base mb-2 md:mb-0">{profile.bio}</p>
           </div>
 
-          {/* 2. PHOTO BLOCK */}
           <div className="order-2 md:col-start-2 md:row-start-1 md:row-span-2 flex items-center w-full md:w-auto">
             {profile.photo && (
               <m.div 
@@ -127,16 +121,17 @@ export default function Home() {
                   src={profile.photo} 
                   className="w-full h-full object-cover opacity-90 hover:opacity-100 transition-opacity duration-500" 
                   layoutId="profile-img" 
-                  // ACCESSIBILITY & PERFORMANCE: Dynamic alt text and high-priority fetching
                   alt={`Portrait of ${profile.name}, ${profile.role}`}
+                  width="400"
+                  height="500"
                   fetchpriority="high"
-                  decoding="async"
+                  loading="eager"
+                  decoding="sync"
                 />
               </m.div>
             )}
           </div>
 
-          {/* 3. BUTTONS BLOCK */}
           <div className="order-3 md:col-start-1 md:row-start-2 flex items-start z-30 pt-4 md:pt-0">
             <div className="flex gap-4 md:gap-6 items-center">
               <Link 
@@ -160,7 +155,6 @@ export default function Home() {
                   
                   <div className={`absolute top-full right-0 md:right-auto md:left-0 pt-4 z-[999] transition-all duration-300 md:group-hover:opacity-100 md:group-hover:visible md:group-hover:translate-y-0 ${isContactsOpen ? 'opacity-100 visible translate-y-0' : 'opacity-0 invisible -translate-y-2'}`}>
                     <div className="bg-zinc-900/70 backdrop-blur-2xl border border-zinc-700 p-6 flex flex-col gap-6 min-w-[260px] md:min-w-[280px] shadow-2xl rounded-sm will-change-transform">
-                      
                       {profile.email && (
                         <div className="flex justify-between items-center gap-6 border-b border-zinc-800/50 pb-4">
                           <span className="text-[10px] text-zinc-500 uppercase">Email</span>
@@ -198,7 +192,6 @@ export default function Home() {
                           </div>
                         </div>
                       )}
-
                     </div>
                   </div>
                 </div>
@@ -237,7 +230,6 @@ export default function Home() {
                 <img 
                   src={active.image} 
                   className="absolute inset-0 w-full h-full object-cover opacity-10 group-hover:opacity-20 transition-opacity duration-700 mix-blend-overlay" 
-                  // ACCESSIBILITY & PERFORMANCE: Dynamic alt text and lazy loading
                   alt={`Cover visualization for ${active.title}`}
                   loading="lazy"
                   decoding="async"
@@ -245,7 +237,6 @@ export default function Home() {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/80 to-transparent"></div>
               
-              {/* ACCESSIBILITY: Changed h4 to h3 for proper heading hierarchy */}
               <h3 className="text-4xl font-light text-white mb-2 relative z-10 drop-shadow-lg">{active.title}</h3>
               <p className="text-zinc-400 max-w-xl relative z-10">{active.short_desc || active.desc}</p>
               
@@ -261,15 +252,35 @@ export default function Home() {
         </div>
       )}
 
+      {/* --- THE FIX: SEAMLESS INFINITE TICKER CLONE BLOCKS --- */}
       <div className="w-full py-12 border-y border-zinc-900/50 overflow-hidden mt-24 bg-zinc-950/20 backdrop-blur-sm relative" aria-hidden="true">
-        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-transparent to-[#030303] z-10 hidden"></div>
-        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-transparent to-[#030303] z-10 hidden"></div>
-        <m.div className="flex gap-12 will-change-transform" animate={{ x: ["0%", "-50%"] }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }}>
-          {[...skills, ...skills, ...skills].map((s, i) => (
-            <span key={i} className="text-zinc-600 tracking-[0.3em] uppercase text-sm whitespace-nowrap">
-              <span className="text-zinc-800 mr-3">/</span> {s.name}
-            </span>
-          ))}
+        
+        {/* Added pointer-events-none to gradient masks to prevent interaction bugs */}
+        <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-transparent to-[#030303] z-10 hidden md:block pointer-events-none"></div>
+        <div className="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-transparent to-[#030303] z-10 hidden md:block pointer-events-none"></div>
+        
+        <m.div 
+          className="flex w-max will-change-transform" 
+          animate={{ x: ["0%", "-50%"] }} 
+          transition={{ duration: 75, repeat: Infinity, ease: "linear" }}
+        >
+          {/* BLOCK 1: Primary render */}
+          <div className="flex gap-12 pr-12 min-w-max">
+            {baseSkills.map((skillName, i) => (
+              <span key={`b1-${i}`} className="text-zinc-600 tracking-[0.3em] uppercase text-sm whitespace-nowrap">
+                <span className="text-zinc-800 mr-3">/</span> {skillName}
+              </span>
+            ))}
+          </div>
+
+          {/* BLOCK 2: Perfect duplicate to seal the loop (note the pr-12 padding to equal the gap-12 spacing) */}
+          <div className="flex gap-12 pr-12 min-w-max">
+            {baseSkills.map((skillName, i) => (
+              <span key={`b2-${i}`} className="text-zinc-600 tracking-[0.3em] uppercase text-sm whitespace-nowrap">
+                <span className="text-zinc-800 mr-3">/</span> {skillName}
+              </span>
+            ))}
+          </div>
         </m.div>
       </div>
 
