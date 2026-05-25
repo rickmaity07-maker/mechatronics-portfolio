@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, Component } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+// THE FIX: Notice NavLink is now imported here at the top
+import { BrowserRouter as Router, Routes, Route, Link, NavLink, useLocation } from 'react-router-dom';
 import { m, LazyMotion, domAnimation, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Lenis from '@studio-freight/lenis'; 
 
@@ -115,7 +116,6 @@ function AnimatedRoutes() {
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:projectId" element={<ProjectDetail />} />
           <Route path="/admin" element={<Admin />} />
-          {/* THE FIX: The 404 Catch-All Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AnimatePresence>
@@ -197,17 +197,22 @@ export default function App() {
               </>
             )}
 
+            {/* THE FIX: The updated Navbar with active link highlighting */}
             <nav className="fixed w-full z-50 top-0 border-b border-zinc-800/50 bg-[#030303]/70 backdrop-blur-md">
               <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                 <Link to="/" aria-label="Go to homepage" className="text-xl font-bold tracking-widest text-zinc-100 z-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm">RM.</Link>
                 
                 <div className="space-x-8 text-sm uppercase tracking-wider hidden md:flex items-center relative z-50">
-                  <Link to="/" className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm">Profile</Link>
-                  <Link to="/experience" className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm">Experience</Link>
-                  <Link to="/education" className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm">Education</Link>
-                  <Link to="/projects" className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm">Projects</Link>
-                  <Link to="/skills" className="hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm">Skills</Link>
-                  {isOwner && <Link to="/admin" className="text-emerald-500 hover:text-emerald-400 font-bold transition-colors border-l border-zinc-800 pl-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm">ADMIN</Link>}
+                  <NavLink end to="/" className={({ isActive }) => `focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Profile</NavLink>
+                  <NavLink to="/experience" className={({ isActive }) => `focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Experience</NavLink>
+                  <NavLink to="/education" className={({ isActive }) => `focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Education</NavLink>
+                  <NavLink to="/projects" className={({ isActive }) => `focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Projects</NavLink>
+                  <NavLink to="/skills" className={({ isActive }) => `focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-4 focus-visible:ring-offset-[#030303] rounded-sm transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Skills</NavLink>
+                  {isOwner && (
+                    <NavLink to="/admin" className={({ isActive }) => `font-bold transition-colors border-l border-zinc-800 pl-8 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm ${isActive ? 'text-emerald-400' : 'text-emerald-600 hover:text-emerald-500'}`}>
+                      ADMIN
+                    </NavLink>
+                  )}
                 </div>
 
                 <button aria-label={isMobileMenuOpen ? "Close mobile menu" : "Open mobile menu"} aria-expanded={isMobileMenuOpen} className="md:hidden text-zinc-400 hover:text-white z-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -219,12 +224,16 @@ export default function App() {
 
               {isMobileMenuOpen && (
                 <div className="md:hidden bg-[#030303] border-b border-zinc-800/50 px-6 py-6 flex flex-col space-y-6 text-sm uppercase tracking-wider absolute w-full top-full z-50">
-                  <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Profile</Link>
-                  <Link to="/experience" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Experience</Link>
-                  <Link to="/education" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Education</Link>
-                  <Link to="/projects" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Projects</Link>
-                  <Link to="/skills" onClick={() => setIsMobileMenuOpen(false)} className="block hover:text-white transition-colors">Skills</Link>
-                  {isOwner && <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className="block text-emerald-500 hover:text-emerald-400 font-bold transition-colors pt-4 border-t border-zinc-800">ADMIN</Link>}
+                  <NavLink end to="/" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `block transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Profile</NavLink>
+                  <NavLink to="/experience" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `block transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Experience</NavLink>
+                  <NavLink to="/education" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `block transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Education</NavLink>
+                  <NavLink to="/projects" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `block transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Projects</NavLink>
+                  <NavLink to="/skills" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `block transition-colors ${isActive ? 'text-white font-bold' : 'text-zinc-400 hover:text-white'}`}>Skills</NavLink>
+                  {isOwner && (
+                    <NavLink to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={({ isActive }) => `block font-bold transition-colors pt-4 border-t border-zinc-800 ${isActive ? 'text-emerald-400' : 'text-emerald-600 hover:text-emerald-500'}`}>
+                      ADMIN
+                    </NavLink>
+                  )}
                 </div>
               )}
             </nav>
