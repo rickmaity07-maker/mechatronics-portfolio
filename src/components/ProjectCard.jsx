@@ -1,26 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 export default function ProjectCard({ project }) {
+  // 1. We create a state to track if the user is on a mobile device
+  const [isTouchDevice, setIsTouchDevice] = useState(false);
+
+  useEffect(() => {
+    // 2. This checks if the device lacks a traditional mouse (i.e., a phone/tablet)
+    const checkDevice = () => {
+      setIsTouchDevice(window.matchMedia('(hover: none)').matches);
+    };
+    
+    checkDevice();
+    
+    // Listen for screen changes just in case they resize a browser window
+    window.addEventListener('resize', checkDevice);
+    return () => window.removeEventListener('resize', checkDevice);
+  }, []);
+
   return (
-    // THE FIX: Added state={project} to pass the database info to the next page
-    // Fallback added to the 'to' link just in case project.link is undefined
-    <Link to={project.link || `/projects/${project.id}`} state={project} className="group block h-full">
+    <Link to={project.link || `/projects/${project.id}`} state={project} className="group block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 rounded-sm">
       <div className="border border-zinc-800/50 bg-zinc-950/50 overflow-hidden h-full flex flex-col hover:border-zinc-600 transition-colors">
         
         {/* Card Image */}
         <div className="aspect-[4/3] overflow-hidden bg-[#0a0a0a] relative border-b border-zinc-800/50">
           {project.image ? (
-            // THE FIX: Upgraded to motion.img for mobile scroll intersection
             <motion.img 
               src={project.image} 
               alt={project.title} 
               className="w-full h-full object-cover"
-              // Desktop hover & Mobile scroll physics
               initial={{ filter: 'grayscale(100%)', opacity: 0.7, scale: 1 }}
-              whileHover={{ filter: 'grayscale(0%)', opacity: 1, scale: 1.05 }}
-              whileInView={{ filter: 'grayscale(0%)', opacity: 1, scale: 1.05 }}
+              
+              // --- THE FIX ---
+              // If it's a desktop (!isTouchDevice), use the hover animation.
+              // If it's a mobile phone (isTouchDevice), use the scroll animation.
+              whileHover={!isTouchDevice ? { filter: 'grayscale(0%)', opacity: 1, scale: 1.05 } : {}}
+              whileInView={isTouchDevice ? { filter: 'grayscale(0%)', opacity: 1, scale: 1.05 } : {}}
+              
               viewport={{ once: false, amount: 0.4 }}
               transition={{ duration: 0.7, ease: "easeOut" }}
             />
@@ -37,8 +54,6 @@ export default function ProjectCard({ project }) {
             {project.title}
           </h3>
           
-          {/* --- THE CRITICAL DATA SPLIT --- */}
-          {/* Uses short preview text, falls back to old long text, limits to 3 lines */}
           <p className="text-sm text-zinc-400 font-light leading-relaxed line-clamp-3">
             {project.short_desc || project.desc}
           </p>
