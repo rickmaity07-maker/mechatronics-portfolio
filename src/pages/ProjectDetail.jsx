@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { motion } from 'framer-motion';
 import ExpandableImage from '../components/ExpandableImage';
+import SimulationFrame from '../components/SimulationFrame';
 
 // --- DATA PARSER ---
 const parseCSV = (csvText) => {
@@ -36,15 +37,12 @@ const parseCSV = (csvText) => {
 };
 
 // --- RUNTIME INJECTION: PREVENT IFRAME SCROLL JUMP ---
-// This intercepts the raw HTML from Supabase and overwrites the browser's native scroll behavior.
 const injectScrollBlocker = (htmlCode) => {
   if (!htmlCode) return "";
   
   const blockerScript = `
     <script>
-      // Overwrite the browser's default scroll command inside this specific iframe
       Element.prototype.scrollIntoView = function() {
-        // Find the immediate container (e.g., the serial console) and scroll ONLY that container
         const container = this.parentElement;
         if (container) {
           container.scrollTop = container.scrollHeight;
@@ -53,7 +51,6 @@ const injectScrollBlocker = (htmlCode) => {
     </script>
   `;
   
-  // Inject the script directly into the HTML head before React renders it
   return htmlCode.replace('<head>', '<head>' + blockerScript);
 };
 
@@ -176,25 +173,15 @@ export default function ProjectDetail() {
           </p>
         </motion.div>
 
-        {/* --- SIMULATION MOVED HERE (Right after Overview) --- */}
+        {/* FULLSCREEN INTERACTIVE SIMULATION */}
         {project.simulation_code && project.simulation_code.trim() !== '' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.45 }}
-            className="pt-8 w-full"
+            className="w-full"
           >
-            {/* Reduced visual weight of the header to integrate better */}
-            <h3 className="text-zinc-500 tracking-[0.2em] text-xs uppercase mb-6 border-b border-zinc-800/50 pb-4">Live Interactive Simulation</h3>
-            <div className="w-full h-[950px] border border-zinc-800/50 bg-[#0a0a0a] overflow-hidden rounded-sm shadow-2xl">
-              <iframe
-                // The crucial change: passing the database code through the scroll-blocker function
-                srcDoc={injectScrollBlocker(project.simulation_code)}
-                className="w-full h-full border-0"
-                sandbox="allow-scripts allow-same-origin"
-                title="Project Interactive Simulation"
-              />
-            </div>
+            <SimulationFrame simulationCode={injectScrollBlocker(project.simulation_code)} />
           </motion.div>
         )}
 
